@@ -144,6 +144,13 @@ function QuestForm() {
   const [tone, setTone] = useState("");
   const [generateNpc, setGenerateNpc] = useState(false);
   const [includeTwist, setIncludeTwist] = useState(false);
+  const [generatedQuest, setGeneratedQuest] = useState("");
+  const [generatedQuestTitle, setGeneratedQuestTitle] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [saveSuccess, setSaveSuccess] = useState("");
 
   const handlePlayersChange = (count) => {
     setPlayers(count);
@@ -169,8 +176,13 @@ function QuestForm() {
     setClasses(updatedClasses);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setGeneratedQuest("");
+    setGeneratedQuestTitle("");
+    setSaveError("");
+    setSaveSuccess("");
 
     const formData = {
       players,
@@ -182,7 +194,145 @@ function QuestForm() {
       includeTwist,
     };
 
-    console.log(formData);
+    try {
+      setIsLoading(true);
+
+      const response = await fetch(
+        "http://localhost:3000/api/gemini/generate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to generate quest");
+      }
+
+      setGeneratedQuest(data.result || "");
+      setGeneratedQuestTitle(extractQuestTitle(data.result || ""));
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const extractQuestTitle = (text) => {
+    if (!text) return "";
+
+    const lines = text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    for (let i = 0; i < lines.length; i += 1) {
+      const current = lines[i].toLowerCase();
+      if (current.includes("quest title")) {
+        const sameLineTitle = lines[i]
+          .replace(/^[\d)\].\-\s]*/g, "")
+          .replace(/^(\*\*)?quest title(\*\*)?\s*:?/i, "")
+          .trim();
+
+        if (sameLineTitle) {
+          return sameLineTitle;
+        }
+
+        const nextLine = lines[i + 1];
+        if (nextLine) {
+          return nextLine.replace(/^[\d)\].\-\s]*/g, "").trim();
+        }
+      }
+    }
+
+    for (const line of lines) {
+      const cleanedLine = line.replace(/^[\d)\].\-\s]+/, "").trim();
+      const lower = cleanedLine.toLowerCase();
+
+      if (lower.startsWith("quest title:")) {
+        return cleanedLine.replace(/^quest title:\s*/i, "").trim();
+      }
+
+      if (lower.startsWith("title:")) {
+        return cleanedLine.replace(/^title:\s*/i, "").trim();
+      }
+    }
+
+    const fallbackLine = lines.find(
+      (line) =>
+        !/here is your dungeons\s*&?\s*dragons quest:?/i.test(line) &&
+        !/^(quest title|short introduction|main objective|main obstacle)/i.test(
+          line.replace(/^[\d)\].\-\s]+/, "").trim().toLowerCase(),
+        ),
+    );
+
+    return (fallbackLine || lines[0]).replace(/^[\d)\].\-\s]+/, "").trim();
+  };
+
+  const handleSaveQuest = async () => {
+    setSaveError("");
+    setSaveSuccess("");
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setSaveError("Devi fare login prima di salvare una quest.");
+      return;
+    }
+
+    const payload = {
+      title: generatedQuestTitle || `${missionType || "Quest"} - Livello ${level}`,
+      prompt: JSON.stringify({
+        players,
+        level,
+        classes,
+        missionType,
+        tone,
+        generateNpc,
+        includeTwist,
+      }),
+      questText: generatedQuest,
+      metadata: {
+        players,
+        level,
+        classes,
+        missionType,
+        tone,
+        generateNpc,
+        includeTwist,
+      },
+    };
+
+    try {
+      setIsSaving(true);
+
+      const response = await fetch("http://localhost:3000/api/saved-quests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Salvataggio fallito");
+      }
+
+      setSaveSuccess("Quest salvata con successo.");
+    } catch (err) {
+      setSaveError(err.message || "Errore durante il salvataggio");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -348,9 +498,47 @@ function QuestForm() {
                 variant="warning"
                 type="submit"
                 className="fw-bold quest-button quest-button-wide"
+                disabled={isLoading}
               >
-                Generate Quest
+                {isLoading ? "Generating..." : "Generate Quest"}
               </Button>
+
+              {error && (
+                <div className="mt-4 text-danger fw-semibold">{error}</div>
+              )}
+
+              {generatedQuest && (
+                <Card className="mt-4 quest-result-card">
+                  <Card.Body>
+                    <div className="form-section-heading mb-3">
+                      <h3>Generated Quest</h3>
+                      <p>Your AI-generated adventure is ready.</p>
+                    </div>
+                    <div style={{ whiteSpace: "pre-wrap" }}>
+                      {generatedQuest}
+                    </div>
+                    <Button
+                      variant="success"
+                      type="button"
+                      className="mt-4 fw-bold"
+                      onClick={handleSaveQuest}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? "Saving..." : "Save"}
+                    </Button>
+                    {saveError && (
+                      <div className="mt-3 text-danger fw-semibold">
+                        {saveError}
+                      </div>
+                    )}
+                    {saveSuccess && (
+                      <div className="mt-3 text-success fw-semibold">
+                        {saveSuccess}
+                      </div>
+                    )}
+                  </Card.Body>
+                </Card>
+              )}
             </Form>
           </div>
         </div>
