@@ -11,7 +11,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/gemini/generate",
+        "http://localhost:3000/api/groq/generate",
         {
           method: "POST",
           headers: {
@@ -41,7 +41,7 @@ function App() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <button type="submit">Test Gemini</button>
+        <button type="submit">Test Groq</button>
       </form>
 
       {error && <p>{error}</p>}

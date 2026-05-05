@@ -152,6 +152,31 @@ function QuestForm() {
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState("");
 
+  const formatQuestResult = (result) => {
+    if (!result) return "";
+    if (typeof result === "string") return result;
+
+    if (typeof result === "object") {
+      const sections = [];
+
+      if (result.title) sections.push(`Quest Title: ${result.title}`);
+      if (result.introduction) {
+        sections.push(`Short Introduction:\n${result.introduction}`);
+      }
+      if (result.objective) sections.push(`Main Objective:\n${result.objective}`);
+      if (result.obstacle) sections.push(`Main Obstacle:\n${result.obstacle}`);
+      if (result.reward) sections.push(`Reward:\n${result.reward}`);
+
+      if (sections.length > 0) {
+        return sections.join("\n\n");
+      }
+
+      return JSON.stringify(result, null, 2);
+    }
+
+    return String(result);
+  };
+
   const handlePlayersChange = (count) => {
     setPlayers(count);
 
@@ -194,15 +219,23 @@ function QuestForm() {
       includeTwist,
     };
 
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("Devi fare login prima di generare una quest.");
+      return;
+    }
+
     try {
       setIsLoading(true);
 
       const response = await fetch(
-        "http://localhost:3000/api/gemini/generate",
+        "http://localhost:3000/api/groq/generate",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(formData),
         },
@@ -214,8 +247,9 @@ function QuestForm() {
         throw new Error(data.message || "Failed to generate quest");
       }
 
-      setGeneratedQuest(data.result || "");
-      setGeneratedQuestTitle(extractQuestTitle(data.result || ""));
+      const formattedQuest = formatQuestResult(data.result);
+      setGeneratedQuest(formattedQuest);
+      setGeneratedQuestTitle(extractQuestTitle(data.result || formattedQuest));
     } catch (err) {
       console.error(err);
       setError(err.message || "Something went wrong");
@@ -224,7 +258,15 @@ function QuestForm() {
     }
   };
 
-  const extractQuestTitle = (text) => {
+  const extractQuestTitle = (value) => {
+    if (!value) return "";
+    if (typeof value === "object" && !Array.isArray(value)) {
+      if (typeof value.title === "string" && value.title.trim()) {
+        return value.title.trim();
+      }
+    }
+
+    const text = typeof value === "string" ? value : formatQuestResult(value);
     if (!text) return "";
 
     const lines = text
@@ -232,27 +274,39 @@ function QuestForm() {
       .map((line) => line.trim())
       .filter(Boolean);
 
+    const normalizeLine = (line) =>
+      line
+        .replace(/^[\d)\].\-\s]*/g, "")
+        .replace(/[*_`#]/g, "")
+        .trim();
+
+    const isSectionLabel = (line) =>
+      /^(quest title|title|short introduction|main objective|main obstacle|npc|plot twist)\s*:?\s*$/i.test(
+        normalizeLine(line).toLowerCase(),
+      );
+
     for (let i = 0; i < lines.length; i += 1) {
-      const current = lines[i].toLowerCase();
-      if (current.includes("quest title")) {
-        const sameLineTitle = lines[i]
-          .replace(/^[\d)\].\-\s]*/g, "")
-          .replace(/^(\*\*)?quest title(\*\*)?\s*:?/i, "")
+      const cleaned = normalizeLine(lines[i]);
+
+      if (/^quest title\s*:?/i.test(cleaned.toLowerCase())) {
+        const sameLineTitle = cleaned
+          .replace(/^quest title\s*:?/i, "")
           .trim();
 
         if (sameLineTitle) {
           return sameLineTitle;
         }
 
-        const nextLine = lines[i + 1];
-        if (nextLine) {
-          return nextLine.replace(/^[\d)\].\-\s]*/g, "").trim();
+        for (let j = i + 1; j < lines.length; j += 1) {
+          if (!isSectionLabel(lines[j])) {
+            return normalizeLine(lines[j]);
+          }
         }
       }
     }
 
     for (const line of lines) {
-      const cleanedLine = line.replace(/^[\d)\].\-\s]+/, "").trim();
+      const cleanedLine = normalizeLine(line);
       const lower = cleanedLine.toLowerCase();
 
       if (lower.startsWith("quest title:")) {
@@ -267,12 +321,10 @@ function QuestForm() {
     const fallbackLine = lines.find(
       (line) =>
         !/here is your dungeons\s*&?\s*dragons quest:?/i.test(line) &&
-        !/^(quest title|short introduction|main objective|main obstacle)/i.test(
-          line.replace(/^[\d)\].\-\s]+/, "").trim().toLowerCase(),
-        ),
+        !isSectionLabel(line),
     );
 
-    return (fallbackLine || lines[0]).replace(/^[\d)\].\-\s]+/, "").trim();
+    return normalizeLine(fallbackLine || lines[0]);
   };
 
   const handleSaveQuest = async () => {
