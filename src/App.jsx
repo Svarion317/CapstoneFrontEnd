@@ -38,6 +38,16 @@ function AppContent() {
     setUtente(null);
   }
 
+  function handleGenerateQuestClick() {
+    if (utente && localStorage.getItem("token")) {
+      navigate("/create-quest");
+      return;
+    }
+
+    setShowSingup(false);
+    setShowAuth(true);
+  }
+
   return (
     <div className="app-shell">
       <NavBar
@@ -61,7 +71,10 @@ function AppContent() {
           element={(
             <>
               <Hero />
-              <HowItWorks />
+              <HowItWorks
+                isAuthenticated={Boolean(utente)}
+                onGenerateQuestClick={handleGenerateQuestClick}
+              />
             </>
           )}
         />

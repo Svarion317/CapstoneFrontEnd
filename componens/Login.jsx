@@ -26,13 +26,13 @@ function Login({ onSignUpClick, onLoginSuccess }) {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Login fallito");
+        setError(data.message || "Login failed");
         return;
       }
 
       onLoginSuccess(data);
     } catch {
-      setError("Impossibile contattare il server");
+      setError("Unable to contact the server");
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ function Login({ onSignUpClick, onLoginSuccess }) {
           <Form.Label>Email</Form.Label>
           <Form.Control
             type="email"
-            placeholder="Inserisci la tua email"
+            placeholder="Enter your email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
@@ -60,7 +60,7 @@ function Login({ onSignUpClick, onLoginSuccess }) {
           <Form.Label>Password</Form.Label>
           <Form.Control
             type="password"
-            placeholder="Inserisci la password"
+            placeholder="Enter your password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
@@ -68,7 +68,7 @@ function Login({ onSignUpClick, onLoginSuccess }) {
         </Form.Group>
 
         <Button variant="primary" type="submit" className="w-100" disabled={loading}>
-          {loading ? "Accesso..." : "Accedi"}
+          {loading ? "Signing in..." : "Sign in"}
         </Button>
       </Form>
 

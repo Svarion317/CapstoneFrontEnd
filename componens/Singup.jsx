@@ -39,13 +39,13 @@ function Singup({ onBackToLogin, onRegisterSuccess }) {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Registrazione fallita");
+        setError(data.message || "Registration failed");
         return;
       }
 
       onRegisterSuccess(data);
     } catch {
-      setError("Impossibile contattare il server");
+      setError("Unable to contact the server");
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,7 @@ function Singup({ onBackToLogin, onRegisterSuccess }) {
 
   return (
     <Card className="p-4 shadow-sm quest-card auth-card auth-card-signup">
-      <h2 className="mb-3">Singup</h2>
+      <h2 className="mb-3">Sign up</h2>
 
       {error && <Alert variant="danger">{error}</Alert>}
 
@@ -62,7 +62,7 @@ function Singup({ onBackToLogin, onRegisterSuccess }) {
           <Form.Label>Name</Form.Label>
           <Form.Control
             type="text"
-            placeholder="Inserisci il nome"
+            placeholder="Enter your name"
             name="name"
             value={formData.name}
             onChange={handleChange}
@@ -73,7 +73,7 @@ function Singup({ onBackToLogin, onRegisterSuccess }) {
           <Form.Label>Surname</Form.Label>
           <Form.Control
             type="text"
-            placeholder="Inserisci il cognome"
+            placeholder="Enter your surname"
             name="surname"
             value={formData.surname}
             onChange={handleChange}
@@ -84,7 +84,7 @@ function Singup({ onBackToLogin, onRegisterSuccess }) {
           <Form.Label>Email</Form.Label>
           <Form.Control
             type="email"
-            placeholder="Inserisci l'email"
+            placeholder="Enter your email"
             name="email"
             value={formData.email}
             onChange={handleChange}
@@ -101,7 +101,7 @@ function Singup({ onBackToLogin, onRegisterSuccess }) {
           <Form.Label>Password</Form.Label>
           <Form.Control
             type="password"
-            placeholder="Inserisci la password"
+            placeholder="Enter your password"
             name="password"
             value={formData.password}
             onChange={handleChange}
@@ -110,12 +110,12 @@ function Singup({ onBackToLogin, onRegisterSuccess }) {
         </Form.Group>
 
         <Button variant="success" type="submit" className="w-100 mb-2" disabled={loading}>
-          {loading ? "Registrazione..." : "Iscriviti"}
+          {loading ? "Registering..." : "Sign up"}
         </Button>
       </Form>
 
       <Button variant="link" onClick={onBackToLogin} className="p-0 align-self-start">
-        Torna al login
+        Back to login
       </Button>
     </Card>
   );

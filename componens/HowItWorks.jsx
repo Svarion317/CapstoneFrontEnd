@@ -1,4 +1,4 @@
-function HowItWorks() {
+function HowItWorks({ isAuthenticated, onGenerateQuestClick }) {
   const steps = [
     {
       number: "01",
@@ -121,10 +121,13 @@ function HowItWorks() {
         <button
           type="button"
           className="btn quest-button btn-warning how-cta-button"
+          onClick={onGenerateQuestClick}
         >
           Generate a quest
         </button>
-        <p className="how-cta-helper mb-0">Sign up — it's free!</p>
+        <p className="how-cta-helper mb-0">
+          {isAuthenticated ? "Start forging your next session." : "Sign up - it's free!"}
+        </p>
       </div>
     </section>
   );

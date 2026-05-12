@@ -2,21 +2,48 @@
 
 :root {
   color-scheme: dark;
+  --ink-black: #000814ff;
+  --prussian-blue: #001d3dff;
+  --regal-navy: #003566ff;
+  --school-bus-yellow: #ffc300ff;
+  --gold: #ffd60aff;
+  --ink-black-rgb: 0, 8, 20;
+  --prussian-blue-rgb: 0, 29, 61;
+  --regal-navy-rgb: 0, 53, 102;
+  --school-bus-yellow-rgb: 255, 195, 0;
+  --gold-rgb: 255, 214, 10;
+  --quest-white-rgb: 255, 255, 255;
+  --quest-text: #ffffffff;
+  --quest-text-soft: rgba(var(--quest-white-rgb), 0.86);
+  --quest-text-muted: rgba(var(--quest-white-rgb), 0.66);
+  --quest-border: rgba(var(--gold-rgb), 0.18);
+  --quest-border-strong: rgba(var(--school-bus-yellow-rgb), 0.45);
+  --quest-surface: rgba(var(--prussian-blue-rgb), 0.86);
+  --quest-surface-strong: rgba(var(--ink-black-rgb), 0.92);
+  --quest-surface-soft: rgba(var(--regal-navy-rgb), 0.32);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 75% 16%, rgba(191, 87, 31, 0.22), transparent 20%),
-    radial-gradient(circle at 50% 0%, rgba(104, 25, 18, 0.2), transparent 26%),
-    radial-gradient(circle at 15% 100%, rgba(31, 46, 91, 0.14), transparent 28%),
-    linear-gradient(180deg, #261411 0%, #161219 52%, #0e1321 100%);
-  color: #f4ece5;
+    radial-gradient(circle at 50% 0%, rgba(var(--regal-navy-rgb), 0.34), transparent 30%),
+    radial-gradient(circle at 15% 100%, rgba(var(--prussian-blue-rgb), 0.18), transparent 28%),
+    linear-gradient(180deg, var(--prussian-blue) 0%, var(--ink-black) 58%, var(--prussian-blue) 100%);
+  color: var(--quest-text);
 }
 
 #root {
   min-height: 100vh;
+}
+
+a {
+  color: var(--quest-text);
+}
+
+a:hover,
+a:focus {
+  color: var(--quest-text);
 }
 
 .navbar-brand-title {

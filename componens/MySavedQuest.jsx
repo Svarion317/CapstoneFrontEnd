@@ -14,7 +14,7 @@ function MySavedQuest() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      setError("Devi fare login per vedere le quest salvate.");
+      setError("You need to log in to view your saved quests.");
       setIsLoading(false);
       return;
     }
@@ -32,12 +32,12 @@ function MySavedQuest() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Errore nel caricamento delle quest salvate");
+        throw new Error(data.message || "Failed to load saved quests");
       }
 
       setQuests(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message || "Errore nel caricamento delle quest salvate");
+      setError(err.message || "Failed to load saved quests");
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +51,7 @@ function MySavedQuest() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      setError("Token mancante. Effettua di nuovo il login.");
+      setError("Missing token. Please log in again.");
       return;
     }
 
@@ -69,12 +69,12 @@ function MySavedQuest() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Eliminazione fallita");
+        throw new Error(data.message || "Delete failed");
       }
 
       setQuests((current) => current.filter((quest) => quest._id !== id));
     } catch (err) {
-      setError(err.message || "Errore durante l'eliminazione");
+      setError(err.message || "Error while deleting");
     } finally {
       setDeletingId("");
     }
@@ -95,7 +95,7 @@ function MySavedQuest() {
       {error && <Alert variant="danger">{error}</Alert>}
 
       {!error && quests.length === 0 && (
-        <Alert variant="secondary">Nessuna quest salvata al momento.</Alert>
+        <Alert variant="secondary">No saved quests yet.</Alert>
       )}
 
       <Row className="g-3">
@@ -126,7 +126,7 @@ function MySavedQuest() {
                       onClick={() => handleDelete(quest._id)}
                       disabled={deletingId === quest._id}
                     >
-                      {deletingId === quest._id ? "Eliminazione..." : "Elimina"}
+                      {deletingId === quest._id ? "Deleting..." : "Delete"}
                     </Button>
                   </>
                 )}

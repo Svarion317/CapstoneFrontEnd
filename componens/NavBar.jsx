@@ -38,7 +38,7 @@ function NavBar({
             Create Quest
           </p>
 
-          {utente?.name && <span className="quest-navbar-user">Ciao, {utente.name}</span>}
+          {utente?.name && <span className="quest-navbar-user">Hi, {utente.name}</span>}
           {utente ? (
             <BottoneLogin label="Logout" variant="outline-danger" onClick={onLogoutClick} />
           ) : (

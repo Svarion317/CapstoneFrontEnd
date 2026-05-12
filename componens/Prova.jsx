@@ -19,7 +19,7 @@ function App() {
           },
           body: JSON.stringify({
             prompt:
-              "Scrivimi una quest fantasy breve per 4 giocatori di livello 3",
+              "Write a short fantasy quest for 4 level 3 players",
           }),
         },
       );
@@ -27,7 +27,7 @@ function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Errore nella richiesta");
+        throw new Error(data.message || "Request failed");
       }
 
       setResult(data.result);

@@ -2,7 +2,7 @@ import { Container } from "react-bootstrap";
 
 function ForgeFooter() {
   return (
-    <footer className="border-top border-secondary py-4 mt-5 quest-footer">
+    <footer className="border-top border-secondary py-4 quest-footer">
       <Container>
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 text-center text-md-start">
           <div>

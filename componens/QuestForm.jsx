@@ -158,14 +158,71 @@ function QuestForm() {
 
     if (typeof result === "object") {
       const sections = [];
+      const formatLocations = (locations) =>
+        locations
+          .map((location, index) => {
+            if (typeof location === "string") {
+              return `${index + 1}. ${location}`;
+            }
+
+            return [
+              `${index + 1}. ${location.name || "Location"}`,
+              location.description,
+              location.dm_note && `DM Note: ${location.dm_note}`,
+            ]
+              .filter(Boolean)
+              .join("\n");
+          })
+          .join("\n\n");
+
+      const formatEncounters = (encounters) =>
+        encounters
+          .map((encounter, index) => {
+            if (typeof encounter === "string") {
+              return `${index + 1}. ${encounter}`;
+            }
+
+            return [
+              `${index + 1}. ${encounter.title || "Encounter"}`,
+              encounter.type && `Type: ${encounter.type}`,
+              encounter.description,
+              encounter.dm_tip && `DM Tip: ${encounter.dm_tip}`,
+            ]
+              .filter(Boolean)
+              .join("\n");
+          })
+          .join("\n\n");
+
+      const formatNpc = (npc) => {
+        if (typeof npc === "string") return npc;
+
+        return [
+          npc.name && `Name: ${npc.name}`,
+          npc.role && `Role: ${npc.role}`,
+          npc.personality && `Personality: ${npc.personality}`,
+          npc.secret && `Secret: ${npc.secret}`,
+        ]
+          .filter(Boolean)
+          .join("\n");
+      };
 
       if (result.title) sections.push(`Quest Title: ${result.title}`);
+      if (result.hook) sections.push(`Hook:\n${result.hook}`);
       if (result.introduction) {
         sections.push(`Short Introduction:\n${result.introduction}`);
       }
-      if (result.objective) sections.push(`Main Objective:\n${result.objective}`);
+      if (result.objective)
+        sections.push(`Main Objective:\n${result.objective}`);
+      if (Array.isArray(result.locations) && result.locations.length > 0) {
+        sections.push(`Locations:\n${formatLocations(result.locations)}`);
+      }
+      if (Array.isArray(result.encounters) && result.encounters.length > 0) {
+        sections.push(`Encounters:\n${formatEncounters(result.encounters)}`);
+      }
       if (result.obstacle) sections.push(`Main Obstacle:\n${result.obstacle}`);
       if (result.reward) sections.push(`Reward:\n${result.reward}`);
+      if (result.npc) sections.push(`NPC:\n${formatNpc(result.npc)}`);
+      if (result.twist) sections.push(`Narrative Twist:\n${result.twist}`);
 
       if (sections.length > 0) {
         return sections.join("\n\n");
@@ -222,24 +279,21 @@ function QuestForm() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      setError("Devi fare login prima di generare una quest.");
+      setError("You need to log in before generating a quest.");
       return;
     }
 
     try {
       setIsLoading(true);
 
-      const response = await fetch(
-        "http://localhost:3000/api/groq/generate",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(formData),
+      const response = await fetch("http://localhost:3000/api/groq/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
 
@@ -281,7 +335,7 @@ function QuestForm() {
         .trim();
 
     const isSectionLabel = (line) =>
-      /^(quest title|title|short introduction|main objective|main obstacle|npc|plot twist)\s*:?\s*$/i.test(
+      /^(quest title|title|hook|short introduction|main objective|locations|encounters|main obstacle|reward|npc|plot twist|narrative twist)\s*:?\s*$/i.test(
         normalizeLine(line).toLowerCase(),
       );
 
@@ -289,9 +343,7 @@ function QuestForm() {
       const cleaned = normalizeLine(lines[i]);
 
       if (/^quest title\s*:?/i.test(cleaned.toLowerCase())) {
-        const sameLineTitle = cleaned
-          .replace(/^quest title\s*:?/i, "")
-          .trim();
+        const sameLineTitle = cleaned.replace(/^quest title\s*:?/i, "").trim();
 
         if (sameLineTitle) {
           return sameLineTitle;
@@ -334,12 +386,13 @@ function QuestForm() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      setSaveError("Devi fare login prima di salvare una quest.");
+      setSaveError("You need to log in before saving a quest.");
       return;
     }
 
     const payload = {
-      title: generatedQuestTitle || `${missionType || "Quest"} - Livello ${level}`,
+      title:
+        generatedQuestTitle || `${missionType || "Quest"} - Level ${level}`,
       prompt: JSON.stringify({
         players,
         level,
@@ -376,12 +429,12 @@ function QuestForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Salvataggio fallito");
+        throw new Error(data.message || "Save failed");
       }
 
-      setSaveSuccess("Quest salvata con successo.");
+      setSaveSuccess("Quest saved successfully.");
     } catch (err) {
-      setSaveError(err.message || "Errore durante il salvataggio");
+      setSaveError(err.message || "Error while saving");
     } finally {
       setIsSaving(false);
     }
@@ -563,8 +616,7 @@ function QuestForm() {
                 <Card className="mt-4 quest-result-card">
                   <Card.Body>
                     <div className="form-section-heading mb-3">
-                      <h3>Generated Quest</h3>
-                      <p>Your AI-generated adventure is ready.</p>
+                      <h3>Your adventure is ready!</h3>
                     </div>
                     <div style={{ whiteSpace: "pre-wrap" }}>
                       {generatedQuest}

@@ -3,7 +3,7 @@ import dragonImage from "../src/assets/dragon.jpeg";
 function Hero() {
   return (
     <section
-      className="hero-section text-white"
+      className="hero-section"
       style={{
         backgroundImage: `url(${dragonImage})`,
         backgroundPosition: "center right",
