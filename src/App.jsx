@@ -10,6 +10,7 @@ import ForgeFooter from "../componens/ForgeFooter";
 import Login from "../componens/Login";
 import Singup from "../componens/Singup";
 import MySavedQuest from "../componens/MySavedQuest";
+import EncounterRandomizer from "../componens/EncounterRandomizer";
 
 function AppContent() {
   const [showAuth, setShowAuth] = useState(false);
@@ -19,6 +20,7 @@ function AppContent() {
     return savedUtente ? JSON.parse(savedUtente) : null;
   });
   const navigate = useNavigate();
+  const isAuthenticated = Boolean(utente && localStorage.getItem("token"));
 
   function handleAuthSuccess(data) {
     if (data?.token) {
@@ -39,7 +41,7 @@ function AppContent() {
   }
 
   function handleGenerateQuestClick() {
-    if (utente && localStorage.getItem("token")) {
+    if (isAuthenticated) {
       navigate("/create-quest");
       return;
     }
@@ -57,11 +59,13 @@ function AppContent() {
         }}
         onSavedQuestsClick={() => navigate("/saved-quests")}
         onCreateQuestClick={() => navigate("/create-quest")}
+        onEncounterRandomizerClick={() => navigate("/encounter-randomizer")}
         onHomeClick={(event) => {
           event.preventDefault();
           navigate("/");
         }}
         utente={utente}
+        isAuthenticated={isAuthenticated}
         onLogoutClick={handleLogout}
       />
 
@@ -72,7 +76,7 @@ function AppContent() {
             <>
               <Hero />
               <HowItWorks
-                isAuthenticated={Boolean(utente)}
+                isAuthenticated={isAuthenticated}
                 onGenerateQuestClick={handleGenerateQuestClick}
               />
             </>
@@ -92,6 +96,16 @@ function AppContent() {
             <Container className="py-5 main-content-shell">
               <MySavedQuest />
             </Container>
+          )}
+        />
+        <Route
+          path="/encounter-randomizer"
+          element={isAuthenticated ? (
+            <Container className="py-5 main-content-shell">
+              <EncounterRandomizer />
+            </Container>
+          ) : (
+            <Navigate to="/" replace />
           )}
         />
         <Route path="*" element={<Navigate to="/" replace />} />

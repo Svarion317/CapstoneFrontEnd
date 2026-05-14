@@ -10,7 +10,9 @@ function NavBar({
   onLogoutClick,
   onSavedQuestsClick,
   onCreateQuestClick,
+  onEncounterRandomizerClick,
   onHomeClick,
+  isAuthenticated,
 }) {
   return (
     <Navbar className="bg-body-tertiary quest-navbar">
@@ -37,6 +39,15 @@ function NavBar({
           >
             Create Quest
           </p>
+          {isAuthenticated && (
+            <p
+              className="mb-0 quest-navbar-link"
+              role="button"
+              onClick={onEncounterRandomizerClick}
+            >
+              Encounter Randomizer
+            </p>
+          )}
 
           {utente?.name && <span className="quest-navbar-user">Hi, {utente.name}</span>}
           {utente ? (
