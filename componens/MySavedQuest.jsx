@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, Col, Row, Spinner } from "react-bootstrap";
+import { apiUrl } from "../src/config/api";
 
-const SAVED_QUESTS_URL = "http://localhost:3000/api/saved-quests";
+const SAVED_QUESTS_URL = apiUrl("/api/saved-quests");
 
 function MySavedQuest() {
   const [quests, setQuests] = useState([]);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "../src/config/api";
 
 function App() {
   const [result, setResult] = useState("");
@@ -11,7 +12,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/groq/generate",
+        apiUrl("/api/groq/generate"),
         {
           method: "POST",
           headers: {

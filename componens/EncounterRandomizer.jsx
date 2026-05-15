@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Alert, Button, Card, Col, Form, Row } from "react-bootstrap";
+import { apiUrl } from "../src/config/api";
 
 const difficultyOptions = ["easy", "medium", "hard", "deadly"];
 const levelOptions = Array.from({ length: 20 }, (_, index) => index + 1);
-const ENCOUNTER_RANDOM_URL = "http://localhost:3000/api/encounters/random";
+const ENCOUNTER_RANDOM_URL = apiUrl("/api/encounters/random");
 
 const notAvailable = "Not available";
 

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Alert, Button, Card, Form } from "react-bootstrap";
+import { apiUrl } from "../src/config/api";
 
-const AUTH_BASE_URL = "http://localhost:3000/api/auth";
+const AUTH_BASE_URL = apiUrl("/api/auth");
 
 function Login({ onSignUpClick, onLoginSuccess }) {
   const [email, setEmail] = useState("");

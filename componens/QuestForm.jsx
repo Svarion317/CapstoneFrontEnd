@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Form, Button, Row, Col, Card } from "react-bootstrap";
+import { apiUrl } from "../src/config/api";
 
 const availableClasses = [
   "Barbarian",
@@ -286,7 +287,7 @@ function QuestForm() {
     try {
       setIsLoading(true);
 
-      const response = await fetch("http://localhost:3000/api/groq/generate", {
+      const response = await fetch(apiUrl("/api/groq/generate"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -417,7 +418,7 @@ function QuestForm() {
     try {
       setIsSaving(true);
 
-      const response = await fetch("http://localhost:3000/api/saved-quests", {
+      const response = await fetch(apiUrl("/api/saved-quests"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
