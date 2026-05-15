@@ -9,7 +9,9 @@ const ENCOUNTER_RANDOM_URL = apiUrl("/api/encounters/random");
 const notAvailable = "Not available";
 
 function formatValue(value) {
-  return value === null || value === undefined || value === "" ? notAvailable : value;
+  return value === null || value === undefined || value === ""
+    ? notAvailable
+    : value;
 }
 
 function formatLabel(label) {
@@ -24,14 +26,18 @@ function formatObjectValue(value) {
     return formatValue(value);
   }
 
-  const preferredValue = value.name || value.index || value.desc || value.description;
+  const preferredValue =
+    value.name || value.index || value.desc || value.description;
 
   if (preferredValue) {
     return preferredValue;
   }
 
   const entries = Object.entries(value)
-    .filter(([, entryValue]) => entryValue !== null && entryValue !== undefined && entryValue !== "")
+    .filter(
+      ([, entryValue]) =>
+        entryValue !== null && entryValue !== undefined && entryValue !== "",
+    )
     .map(([key, entryValue]) => `${formatLabel(key)}: ${entryValue}`);
 
   return entries.length > 0 ? entries.join(", ") : notAvailable;
@@ -43,20 +49,22 @@ function formatList(value) {
       return notAvailable;
     }
 
-    return value
-      .map((item) => {
-        if (item === null || item === undefined || item === "") {
-          return "";
-        }
+    return (
+      value
+        .map((item) => {
+          if (item === null || item === undefined || item === "") {
+            return "";
+          }
 
-        if (typeof item !== "object") {
-          return item;
-        }
+          if (typeof item !== "object") {
+            return item;
+          }
 
-        return formatObjectValue(item);
-      })
-      .filter(Boolean)
-      .join(", ") || notAvailable;
+          return formatObjectValue(item);
+        })
+        .filter(Boolean)
+        .join(", ") || notAvailable
+    );
   }
 
   if (value && typeof value === "object") {
@@ -77,7 +85,9 @@ function formatSpeed(speed) {
 
   if (typeof speed === "object") {
     const speedEntries = Object.entries(speed)
-      .filter(([, value]) => value !== null && value !== undefined && value !== "")
+      .filter(
+        ([, value]) => value !== null && value !== undefined && value !== "",
+      )
       .map(([key, value]) => `${formatLabel(key)}: ${value}`);
 
     return speedEntries.length > 0 ? speedEntries.join(", ") : notAvailable;
@@ -91,19 +101,21 @@ function formatTextBlocks(value) {
     return notAvailable;
   }
 
-  return value
-    .map((item) => {
-      if (typeof item === "string") {
-        return item;
-      }
+  return (
+    value
+      .map((item) => {
+        if (typeof item === "string") {
+          return item;
+        }
 
-      const name = item?.name || item?.title;
-      const description = item?.desc || item?.description || item?.text;
+        const name = item?.name || item?.title;
+        const description = item?.desc || item?.description || item?.text;
 
-      return [name, description].filter(Boolean).join(": ");
-    })
-    .filter(Boolean)
-    .join("\n\n") || notAvailable;
+        return [name, description].filter(Boolean).join(": ");
+      })
+      .filter(Boolean)
+      .join("\n\n") || notAvailable
+  );
 }
 
 function getAbilityScore(monster, shortName, longName) {
@@ -192,7 +204,8 @@ function EncounterRandomizer() {
         <span className="encounter-kicker">Combat Builder</span>
         <h2>Encounter Randomizer</h2>
         <p>
-          Build balanced combat encounters using party size, level and difficulty.
+          Build balanced combat encounters using party size, level and
+          difficulty.
         </p>
       </header>
 
@@ -207,8 +220,13 @@ function EncounterRandomizer() {
             <Form onSubmit={handleGenerateEncounter}>
               <Row className="g-4">
                 <Col xs={12}>
-                  <Form.Group controlId="encounterPlayers" className="config-control">
-                    <Form.Label className="config-label">Number of players</Form.Label>
+                  <Form.Group
+                    controlId="encounterPlayers"
+                    className="config-control"
+                  >
+                    <Form.Label className="config-label">
+                      Number of players
+                    </Form.Label>
                     <Form.Control
                       className="quest-input encounter-input"
                       type="number"
@@ -221,8 +239,13 @@ function EncounterRandomizer() {
                 </Col>
 
                 <Col xs={12}>
-                  <Form.Group controlId="encounterLevel" className="config-control">
-                    <Form.Label className="config-label">Party level</Form.Label>
+                  <Form.Group
+                    controlId="encounterLevel"
+                    className="config-control"
+                  >
+                    <Form.Label className="config-label">
+                      Party level
+                    </Form.Label>
                     <Form.Select
                       className="quest-input encounter-input"
                       value={level}
@@ -238,7 +261,10 @@ function EncounterRandomizer() {
                 </Col>
 
                 <Col xs={12}>
-                  <Form.Group controlId="encounterDifficulty" className="config-control">
+                  <Form.Group
+                    controlId="encounterDifficulty"
+                    className="config-control"
+                  >
                     <Form.Label className="config-label">Difficulty</Form.Label>
                     <Form.Select
                       className="quest-input encounter-input"
@@ -266,7 +292,7 @@ function EncounterRandomizer() {
 
               {isLoading && (
                 <p className="encounter-loading mb-0">
-                  Generating encounter from the backend...
+                  Generating encounter...
                 </p>
               )}
 
@@ -285,7 +311,9 @@ function EncounterRandomizer() {
               {monsters.length === 0 && (
                 <Card className="quest-card encounter-monster-card">
                   <Card.Body>
-                    <p className="mb-0 encounter-empty">No monsters returned.</p>
+                    <p className="mb-0 encounter-empty">
+                      No monsters returned.
+                    </p>
                   </Card.Body>
                 </Card>
               )}
@@ -312,7 +340,8 @@ function EncounterRandomizer() {
                         <div>
                           <h3>{formatValue(monster?.name)}</h3>
                           <p>
-                            {formatValue(monster?.size)} {formatValue(monster?.type)}
+                            {formatValue(monster?.size)}{" "}
+                            {formatValue(monster?.type)}
                           </p>
                         </div>
                         <span>x{formatValue(monster?.quantity)}</span>
@@ -321,7 +350,9 @@ function EncounterRandomizer() {
                       <div className="encounter-monster-grid">
                         <div>
                           <span>Challenge rating</span>
-                          <strong>{formatValue(monster?.challengeRating)}</strong>
+                          <strong>
+                            {formatValue(monster?.challengeRating)}
+                          </strong>
                         </div>
                         <div>
                           <span>XP</span>
@@ -352,7 +383,9 @@ function EncounterRandomizer() {
                           <div className="encounter-monster-grid">
                             <div>
                               <span>Armor class</span>
-                              <strong>{formatValue(monster?.armorClass)}</strong>
+                              <strong>
+                                {formatValue(monster?.armorClass)}
+                              </strong>
                             </div>
                             <div>
                               <span>Hit points</span>
@@ -360,7 +393,11 @@ function EncounterRandomizer() {
                             </div>
                             <div>
                               <span>Hit dice</span>
-                              <strong>{formatValue(monster?.hitDice ?? monster?.hit_dice)}</strong>
+                              <strong>
+                                {formatValue(
+                                  monster?.hitDice ?? monster?.hit_dice,
+                                )}
+                              </strong>
                             </div>
                             <div>
                               <span>Speed</span>
@@ -380,15 +417,30 @@ function EncounterRandomizer() {
                           <div className="encounter-detail-list">
                             <div>
                               <span>Damage Resistances</span>
-                              <strong>{formatList(monster?.damageResistances ?? monster?.damage_resistances)}</strong>
+                              <strong>
+                                {formatList(
+                                  monster?.damageResistances ??
+                                    monster?.damage_resistances,
+                                )}
+                              </strong>
                             </div>
                             <div>
                               <span>Damage Immunities</span>
-                              <strong>{formatList(monster?.damageImmunities ?? monster?.damage_immunities)}</strong>
+                              <strong>
+                                {formatList(
+                                  monster?.damageImmunities ??
+                                    monster?.damage_immunities,
+                                )}
+                              </strong>
                             </div>
                             <div>
                               <span>Condition Immunities</span>
-                              <strong>{formatList(monster?.conditionImmunities ?? monster?.condition_immunities)}</strong>
+                              <strong>
+                                {formatList(
+                                  monster?.conditionImmunities ??
+                                    monster?.condition_immunities,
+                                )}
+                              </strong>
                             </div>
                             <div>
                               <span>Senses</span>
@@ -400,7 +452,9 @@ function EncounterRandomizer() {
                             </div>
                             <div>
                               <span>Challenge Rating</span>
-                              <strong>{formatValue(monster?.challengeRating)}</strong>
+                              <strong>
+                                {formatValue(monster?.challengeRating)}
+                              </strong>
                             </div>
                             <div>
                               <span>XP</span>
@@ -410,7 +464,12 @@ function EncounterRandomizer() {
 
                           <div className="encounter-text-section">
                             <span>Special Abilities</span>
-                            <p>{formatTextBlocks(monster?.specialAbilities ?? monster?.special_abilities)}</p>
+                            <p>
+                              {formatTextBlocks(
+                                monster?.specialAbilities ??
+                                  monster?.special_abilities,
+                              )}
+                            </p>
                           </div>
 
                           <div className="encounter-text-section">
@@ -420,7 +479,12 @@ function EncounterRandomizer() {
 
                           <div className="encounter-text-section">
                             <span>Legendary Actions</span>
-                            <p>{formatTextBlocks(monster?.legendaryActions ?? monster?.legendary_actions)}</p>
+                            <p>
+                              {formatTextBlocks(
+                                monster?.legendaryActions ??
+                                  monster?.legendary_actions,
+                              )}
+                            </p>
                           </div>
                         </div>
                       )}

@@ -535,6 +535,10 @@
   color: var(--quest-text) !important;
 }
 
+.quest-result-card .text-success {
+  color: #000 !important;
+}
+
 .modal-content {
   background: transparent;
   border: 0;
